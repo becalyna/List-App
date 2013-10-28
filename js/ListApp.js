@@ -83,7 +83,9 @@ var ListApp =(function() {
             '<li id="' + index + '"' + styleStr + '>'
             ,  '<label data-role="none">'
             ,    '<input type="checkbox" ' + checkedStr + ' name="completedCheckBox" id="completedCheckBox" />'
-            ,    '  ' + item.name + '</label>'
+            ,    '  ' + item.name + ' '
+            ,  '</label>'
+            ,  '<div class="delitem" id="delListItemBtn"></div>'
             ,'</li>'
         ].join( '' );
 
@@ -136,7 +138,7 @@ var ListApp =(function() {
         $("#userListItems").empty();
         if (listID > -1 ) {
 
-             var selectedList = listArray[listID];
+            var selectedList = listArray[listID];
 
             //make sure we have an array
             if (!selectedList.hasOwnProperty('listItems'))  {
@@ -152,12 +154,11 @@ var ListApp =(function() {
             $("#userListItems").listview("refresh").find('input').checkboxradio();
 
             //this is to strike through to set completed
-            $("li .ui-checkbox").bind( "change", function(event, ui) {
+            $("li .ui-checkbox").bind( "change", function (event, ui) {
                 //var itemID = $(this.parentElement).attr('id');
                 var itemID = this.parentElement.id;
                 var selectedList = listArray[listID];
                 var item = selectedList.listItems[itemID];
-
 
                 if (item) {
                     //need to look for class = ui-checkbox-off    or data-icon = checkbox-off
@@ -169,8 +170,56 @@ var ListApp =(function() {
                         item.completed = true;
                     }
                     $("#userListItems").find('input').checkboxradio();
+                }
+
+            });
+
+
+            //del item from a list
+            $('.delitem').bind( "click", function (event, ui) {
+
+                var itemID = this.parentElement.id;
+                var selectedList = listArray[listID];
+                var item = selectedList.listItems[itemID];
+
+                var newItems = new Array();
+
+                console.log("itemID: " + itemID);
+                console.log("selectedList: " + selectedList.name);
+                console.log("item: " + item.name);
+
+                console.log("New Below\n");
+
+                var len = selectedList.listItems.length;
+
+                // Loop through the current item list and omit the one we clicked.
+                for (var i = 0; i < len; ++i) {
+                    if (selectedList.listItems[i] != item) {
+                        console.log("adding item: " + selectedList.listItems[i].name);
+                        newItems.push(selectedList.listItems[i]);
+                    }
 
                 }
+
+                // Writes our new list to the selected list items.
+                selectedList.listItems = newItems;
+
+                // The parent of the clicked object
+                event.target.parentNode.style.display = "none";
+              
+                // Saves the new list to the database.
+                $.mobile.loading('show');
+                Store.saveList(selectedList, function(result) {
+                    //onSuccess handler
+                    
+                    $.mobile.loading('hide');
+                }, function(error){
+                    //onError handler
+                    alert("Could not delete item");
+                    $.mobile.loading('hide');
+                });
+
+
             });
 
         }  else {
@@ -246,6 +295,7 @@ var ListApp =(function() {
 
         });
 
+
         //Delete LIST
         $("#deleteListBtn").bind("click", function(e){
             $.mobile.loading('show');
@@ -262,6 +312,7 @@ var ListApp =(function() {
             });
 
         });
+
 
         //Add new LIST
         $('#namedListBtn').click(function (e) {
@@ -288,9 +339,8 @@ var ListApp =(function() {
                 $.mobile.loading('hide');
             }
 
-
-
         });
+
 
         //Add new LIST ITEM
         $('#addItemSubmitBtn').click(function (e) {
@@ -301,7 +351,7 @@ var ListApp =(function() {
             itemName = $.trim(itemName);
 
             if (itemName.length > 0) {
-                var item = {"name": itemName}
+                var item = {"name": itemName};
                 var selectedList = listArray[listID];
 
                 //update model
@@ -329,9 +379,9 @@ var ListApp =(function() {
 // public API
     return {
         init : _init,
-        curretListID :listID,
-        //adding these for the lifecycle events when a page is being shoen
-        buildListPage: _buildListPage,
+        currentListID : listID,
+        //adding these for the lifecycle events when a page is being shown
+        buildListPage : _buildListPage,
         buildListItemsPage : _buildListItemsPage
     };
 })();

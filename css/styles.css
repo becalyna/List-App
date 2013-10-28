@@ -39,6 +39,34 @@ body {
 	text-align:center;
 }
 
+.delitem {
+
+	position: absolute;
+	top: 50%;
+	margin-top: -9px;
+
+	right: 10px;
+
+	width: 18px;
+	height: 18px;
+
+	cursor: pointer;
+
+	background: black;
+
+	-moz-box-shadow: 0 1px 0 rgba(255,255,255,.4);
+	-webkit-box-shadow: 0 1px 0 rgba(255,255,255,.4);
+	box-shadow: 0 1px 0 rgba(255,255,255,.4);
+
+	transform:rotate(45deg);
+	-webkit-transform:rotate(45deg);
+	-moz-transform:rotate(45deg);
+	-o-transform:rotate(45deg);
+
+	z-index: 1;
+
+}
+
 .minusSign {
 	float:right;
 	margin-top: -45px;
